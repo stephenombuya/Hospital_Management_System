@@ -1,0 +1,313 @@
+    <!DOCTYPE html>
+    <html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="style.css">
+        <title>Admin Panel</title>
+    </head>
+
+    <body>
+        <div class="side-menu">
+            <div class="brand-name">
+                <h1>Coopa HMS</h1>
+            </div>
+            <ul>
+                <li><a href="index.html" class="active"><img src="images/dashboard.png" class="setting-icon"  alt="">&nbsp; <span>Dashboard</span> </a></li>
+                <li><a href="patients.html" ><img src="images/medical.png" class="setting-icon"  alt="">&nbsp;<span>Patients</span> </a></li>
+                <li> <a href="doctors.html" ><img  src="images/doctor.png"  class="setting-icon"  alt="">&nbsp;<span>Doctors</span> </a></li>
+                <li><a href="Appointments.html" ><img src="images/appointments.png" class="setting-icon"  alt="">&nbsp;<span><Area>Appointments</Area></span> </a></li>
+                <li> <a href="hospitals.html" ><img src="images/hospital.png" class="setting-icon"  alt="">&nbsp;<span>Hospitals</span> </a></li>
+                <li> <a href="records.html" ><img src="images/record.png" class="setting-icon"  alt="">&nbsp;<span>Records</span> </a></li>
+                <li> <a href="help.html" ><img src="images/help.png" class="setting-icon"  alt="">&nbsp;<span>Help</span> </a></li>
+                <li><a href="login.html"> <img src="images/logout.png" class="setting-icon"  alt="">&nbsp;<span>Logout</span> </a></li>
+               
+            </ul>
+        </div>
+        <div class="container">
+            <div class="header">
+                <div class="nav">
+                    <div class="search">
+                        <input type="text" placeholder="Search..">
+                        <button title="button" type="submit"><img src="images/search.png" alt=""></button>
+                    </div>
+                    <div class="user">
+                        <!-- <a href="#" class="btn">Add New Patient</a> -->
+                        <img src="images/notifications.png" alt="">
+                        <div class="img-case">
+                            <img src="images/user.png" alt="">
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+            <div class="content">
+                <div class="cards">
+                    <div class="card">
+                        <div class="box">
+                            <h1  id="patientCount"></h1>
+                            <h3>Patients</h3>
+                        </div>
+                        <div class="icon-case">
+                            <img class= "dash-icon"  src="images/patient.png" alt="">
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="box">
+                            <h1  id="doctorCount"></h1>
+                            <h3>Doctors</h3>
+                        </div>
+                        <div class="icon-case">
+                            <img class= "dash-icon" src="images/doctor.png" alt="">
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="box">
+                            <h1>5</h1>
+                            <h3>Hospitals</h3>
+                        </div>
+                        <div class="icon-case">
+                            <img class= "dash-icon"  src="images/hospital.png" alt="">
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="box">
+                            <h1 id="appointmentCount"></h1>
+                            <h3>Appointments</h3>
+                        </div>
+                        <div class="icon-case">
+                            <img class= "dash-icon"  src="images/appointments2.png" alt="">
+                        </div>
+                    </div>
+                </div>
+                <div class="content-2">
+                    <div class="recent-payments">
+                        <div class="title">
+                            <h2>Patients</h2>
+                            <a href="#" class="btn" onclick="viewAllPatients()">View All Patients</a>
+                        </div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Full Name</th>
+                                    <th>DOB</th>
+                                    <th>Gender</th>
+                                </tr>
+                            </thead>
+                            <tbody id="patientTableBody"></tbody>
+                        </table>
+                    </div>
+                    <div class="new-students">
+                        <div class="title">
+                            <h2>Appointments</h2>
+                            <a href="#" class="btn" onclick="viewAllAppointments()">View All Appointments</a>
+                            
+                        
+                        </div>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Patient </th>
+                                    <th>Doctor</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="appointmentTableBody"></tbody>
+
+
+                        </table>
+                    
+                    </div>
+
+
+                
+                </div>
+            </div>
+        </div>
+
+        <!-- Add Doctor Form -->
+        <div id="addDoctorForm" style="display: none;">
+            <h2>Add Doctor</h2>
+                <form id="doctorForm">
+        <!-- Add doctor form fields here (e.g., name, specialization, etc.) -->
+                    <input type="text" id="first_name" placeholder="first_name" required>
+                    <input type="text" id="last_name" placeholder="last_name" required>
+                    <input type="text" id="Specialization" placeholder="Specialization" required>
+        <!-- Add other doctor fields as needed -->
+                    <button type="button" onclick="addDoctor()">Add Doctor</button>
+                </form>
+        </div>
+        <!-- Add Patient Form -->
+        <div id="addPatientForm" style="display: none;">
+            <h2>Add Patient</h2>
+                <form id="patientForm">
+                <!-- Add patient form fields here (e.g., name, dob, gender, etc.) -->
+                    <input type="text" id="first_name" placeholder="first_name" required>
+                    <input type="text" id="last_name" placeholder="last_name" required>
+                    <input type="date" id="dob" placeholder="dob" required>
+                    <select id="gender" required>
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                        <option value="other">Other</option>
+                    </select>
+                    <button type="button" onclick="addPatient()">Add Patient</button>
+                </form>
+        </div>
+
+    </body>
+    <script>
+     
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const apiUrl = 'http://localhost:8083/api/patients';
+
+        fetch(apiUrl)
+            .then(response => response.json())
+            .then(data => {
+                console.log('Success:', data);
+                const patientTableBody = document.getElementById('patientTableBody');
+
+                data.forEach(patient => {
+                    const row = document.createElement('tr');
+
+                    row.innerHTML = `
+                        <td>${patient.patient_id}</td>
+                        <td>${patient.first_name} ${patient.last_name}</td>
+                        <td>${patient.dob} </td>
+                        <td>${patient.gender}</td>
+                        
+                        <td><a href="#" class="btn">View</a></td>
+                    `;
+                    patientTableBody.appendChild(row);
+                });
+            })
+            .catch(error => console.error('Error fetching patient data:', error));
+    });
+
+    //list appointments
+    document.addEventListener('DOMContentLoaded', function () {
+        const apiUrl = 'http://localhost:8083/api/appointments';
+
+        fetch(apiUrl)
+            .then(response => response.json())
+            .then(data => {
+                console.log('Success:', data);
+                const appointmentTableBody = document.getElementById('appointmentTableBody');
+        
+     
+                data.forEach(appointment => {
+                    const row = document.createElement('tr');
+
+                    row.innerHTML = `
+                        <td>${appointment.appointment_id}</td>
+                        <td>${appointment.patient_first_name} ${appointment.patient_last_name} </td>
+                        <td>${appointment.doctor_first_name} ${appointment.doctor_last_name} </td>
+                        <td>${appointment.appointment_date} </td>
+                        <td>${appointment.status}</td>
+                        <td><a href="#" class="btn">View</a></td>
+                    `;
+                    appointmentTableBody.appendChild(row);
+                });
+            })
+            .catch(error => console.error('Error fetching appointment data:', error));
+    });
+
+
+    //total number of patients, doctors, hospitals, appointments
+    document.addEventListener('DOMContentLoaded', function () {
+        const apiUrl = 'http://localhost:8083/api/counts';
+
+        fetch(apiUrl)
+            .then(response => response.json())
+            .then(data => {
+                console.log('Success:', data);
+                const patientCount = document.getElementById('patientCount');
+                const doctorCount = document.getElementById('doctorCount');
+                // const hospitalCount = document.getElementById('hospitalCount');
+                const appointmentCount = document.getElementById('appointmentCount');
+
+                patientCount.innerHTML = data.patients;
+                doctorCount.innerHTML = data.doctors;
+                // hospitalCount.innerHTML = data.hospital;
+                appointmentCount.innerHTML = data.appointments
+;
+            })
+            .catch(error => console.error('Error fetching count data:', error));
+    });
+
+// Similar functions for showing the Add Doctor form and adding a new doctor
+    function showAddDoctorForm() {
+        document.getElementById('addDoctorForm').style.display = 'block';
+    }
+
+    function addDoctor() {
+    
+// Collect data from the form
+    const first_name = document.getElementById('first_name').value;
+    const last_name = document.getElementById('last_name').value;
+    const Specialization = document.getElementById('Specialization').value;
+
+    // Make API call to add doctor (replace 'api/add_doctor' with your actual endpoint)
+    fetch('http://localhost:8083/api/doctors', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            first_name: first_name,
+            last_name: last_name,
+            specialization: specialization,
+            // Add other doctor data as needed
+        }),
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Doctor added successfully:', data);
+        // You can update the UI or do any other necessary tasks here
+    })
+    .catch(error => console.error('Error adding doctor:', error));
+}
+
+    // Function to show the Add Patient form
+    function showAddPatientForm() {
+        document.getElementById('addPatientForm').style.display = 'block';
+    }
+
+    // Function to add a new patient
+    function addPatient() {
+        // Collect data from the form
+        const patientName = document.getElementById('patientName').value;
+        const patientDOB = document.getElementById('patientDOB').value;
+        const patientGender = document.getElementById('patientGender').value;
+
+        // Make API call to add patient (replace 'api/add_patient' with your actual endpoint)
+        fetch('http://localhost:8083/api/patients', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                first_name: first_name,
+                last_name: last_name,
+                dob: dob,
+                gender: gender,
+                // Add other patient data as needed
+            }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Patient added successfully:', data);
+            // You can update the UI or do any other necessary tasks here
+        })
+        .catch(error => console.error('Error adding patient:', error));
+    }
+
+    </script>
+
+    </html>

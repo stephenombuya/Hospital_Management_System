@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Admin Panel</title>
+</head>
+
+<body>
+    <div class="side-menu">
+        <div class="brand-name">
+            <h1>Coopa HMS</h1>
+        </div>
+        <ul>
+            <li><a href="index.html" class="active"><img src="images/dashboard.png" class="setting-icon"  alt="">&nbsp; <span>Dashboard</span> </a></li>
+            <li><a href="patients.html" ><img src="images/medical.png" class="setting-icon"  alt="">&nbsp;<span>Patients</span> </a></li>
+            <li> <a href="doctors.html" ><img  src="images/doctor.png"  class="setting-icon"  alt="">&nbsp;<span>Doctors</span> </a></li>
+            <li><a href="Appointments.html" ><img src="images/appointments2.png" class="setting-icon"  alt="">&nbsp;<span>Appointments</span> </a></li>
+            <li> <a href="hospitals.html" ><img src="images/hospital.png" class="setting-icon"  alt="">&nbsp;<span>Hospitals</span> </a></li>
+            <li> <a href="records.html" ><img src="images/record.png" class="setting-icon"  alt="">&nbsp;<span>Records</span> </a></li>
+            <li> <a href="help.html" ><img src="images/help.png" class="setting-icon"  alt="">&nbsp;<span>Help</span> </a></li>
+            <li><a href="login.html"> <img src="images/logout.png" class="setting-icon"  alt="">&nbsp;<span>Logout</span> </a></li>
+           
+        </ul>
+    </div>
+    <div class="container">
+        <div class="header">
+            <div class="nav">
+                <div class="search">
+                    <input type="text" placeholder="Search.." id="patientIdInput">
+                    <button onclick="searchPatientById()" title="button" type="submit">
+                        <img src="images/search.png" alt=""></button>        
+                </div>
+             <!-- Inside the <div class="header"> element, after the search div -->
+                <div class="add-patient">
+                    <button onclick="openAddPatientModal()">Add New Patient</button>
+                </div>
+                <div class="user">
+            <!-- <a href="#" class="btn">Add New Patient</a> -->
+                    <img src="images/notifications.png" alt="">
+                    <div class="img-case">
+                        <img src="images/user.png" alt="">
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+        <div class="content">
+            <div class="cards">
+              
+            </div>
+            <div class="content-2">
+                <div class="recent-payments">
+                    <div class="title">
+                        <h2>Patients</h2>
+                        <div id="patientCount"></div>
+                        <!-- <a href="#" class="btn">View All</a> -->
+                        <a href="#" class="btn" onclick="viewAllPatients()">View All Patients</a>
+
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>PatientID</th>
+                                <th>Full Name</th>
+                                <th>DOB</th>
+                                <th>Gender</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="patientTableBody"></tbody>
+                    </table>   
+                </div>
+
+                                        <!-- ... Your existing HTML code ... -->
+
+                                        <div class="add-patient-form" id="addPatientForm" style="display: none;">
+                                            <h2>Add New Patient</h2>
+                                            <form id="patientForm">
+                                                <label for="firstName">First Name:</label>
+                                                <input type="text" id="firstName" name="firstName" required><br>
+                    
+                                                <label for="lastName">Last Name:</label>
+                                                <input type="text" id="lastName" name="lastName" required><br>
+                    
+                                                <label for="dob">Date of Birth:</label>
+                                                <input type="date" id="dob" name="dob" required><br>
+                    
+                                                <label for="gender">Gender:</label>
+                                                <select id="gender" name="gender" required>
+                                                    <option value="male">Male</option>
+                                                    <option value="female">Female</option>
+                                                    <option value="other">Other</option>
+                    
+                                                    <!-- Add more options as needed -->
+                                                </select><br>
+                    
+                                                <input type="submit" value="Submit">
+                                            </form>
+                                        </div>
+
+                                        <div>
+                                            <div class="edit-patient-form" id="editPatientForm" style="display: none;">
+                                                <h2>Edit Patient</h2>
+                                                    <form id="editPatientForm">
+                                                        <label for="editPatientFirstName">First Name:</label>
+                                                        <input type="text" id="editPatientFirstName" name="editPatientFirstName" required><br>
+                                                
+                                                        <label for="editPatientLastName">Last Name:</label>
+                                                        <input type="text" id="editPatientLastName" name="editPatientLastName" required><br>
+                                                        
+                                                        <label for="editPatientDob">Date of Birth:</label>
+                                                        <input type="date" id="editPatientDob" name="editPatientDob" required><br>
+                        
+                                                        <label for="editPatientGender">Gender:</label>
+                                                        <select id="editPatientGender" name="editPatientGender" required>
+                                                            <option value="male">Male</option>
+                                                            <option value="female">Female</option>
+                                                            <option value="other">Other</option>
+                                                        </select><br>
+                                                        <!-- Add more fields as needed -->
+                                                
+                                                        <input type="submit" class="btn" value="Save Changes">
+                                                    </form>
+                                            </div>
+                                        </div>
+
+                </div>
+
+
+               
+            </div>
+        </div>
+    </div>
+</body>
+
+<script>
+
+let currentEditingPatientId; // Variable to store the ID of the patient being edited
+
+
+document.getElementById('editPatientForm').addEventListener('submit', function (event) {
+        event.preventDefault();
+
+        // Get the edited information from the form
+        const editedData = {
+            first_name: document.getElementById('editPatientFirstName').value,
+            last_name: document.getElementById('editPatientLastName').value,
+            dob: document.getElementById('editPatientDob').value,
+            gender: document.getElementById('editPatientGender').value
+            // Add more fields as needed
+        };
+
+        // Fetch the API to update the patient information
+        const apiUrl = `http://localhost:8083/api/patients?patient_id=${currentEditingPatientId}`;
+
+        fetch(apiUrl, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(editedData),
+        })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Success:', data);
+
+                // Hide the edit form after successful update
+                document.getElementById('editPatientForm').style.display = 'none';
+
+                // Refresh the patient table to reflect the changes
+                viewAllPatients();
+            })
+            .catch(error => console.error('Error updating patient:', error));
+    });
+
+document.addEventListener('DOMContentLoaded', function () {
+    const addButton = document.querySelector('.add-patient button');
+    const addPatientForm = document.getElementById('addPatientForm');
+
+    addButton.addEventListener('click', function () {
+        openAddPatientForm();
+    });
+
+    document.getElementById('patientForm').addEventListener('submit', function (event) {
+        event.preventDefault();
+
+        const apiUrl = 'http://localhost:8083/api/patients';
+
+        const formData = {
+            first_name: document.getElementById('firstName').value,
+            last_name: document.getElementById('lastName').value,
+            dob: document.getElementById('dob').value,
+            gender: document.getElementById('gender').value,
+        };
+
+        fetch(apiUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formData),
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Success:', data);
+            addPatientForm.style.display = 'none';
+            // You may want to reload or update the patient table after adding a new patient
+            viewAllPatients();
+        })
+        .catch(error => console.error('Error adding patient:', error));
+    });
+});
+
+// New function to handle the visibility of the form
+function openAddPatientForm() {
+    const addPatientForm = document.getElementById('addPatientForm');
+    addPatientForm.style.display = 'block';
+}
+
+function editPatient(patientId) {
+        alert(`Editing patient with ID ${patientId}`);
+
+        // Fetch the specific patient information for the given ID
+        const apiUrl = `http://localhost:8083/api/patients?patient_id=${patientId}`;
+
+        fetch(apiUrl)
+            .then(response => response.json())
+            .then(data => {
+                // Populate the edit form with the current patient's information
+                document.getElementById('editPatientFirstName').value = data.first_name;
+                document.getElementById('editPatientLastName').value = data.last_name;
+                document.getElementById('editPatientDob').value = data.dob;
+
+                // Set the currentEditingPatientId
+                currentEditingPatientId = patientId;
+
+                // Display the edit form
+                document.getElementById('editPatientForm').style.display = 'block';
+            })
+            .catch(error => console.error('Error fetching patient data:', error));
+    }
+
+
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const apiUrl = 'http://localhost:8083/api/patients';
+
+        fetch(apiUrl)
+            .then(response => response.json())
+            .then(data => {
+                console.log('Success:', data);
+                const patientTableBody = document.getElementById('patientTableBody');
+
+                data.forEach(patient => {
+                    const row = document.createElement('tr');
+
+                    row.innerHTML = `
+                        <td>${patient.patient_id}</td>
+                        <td>${patient.first_name} ${patient.last_name}</td>
+                        <td>${patient.dob} </td>
+                        <td>${patient.gender}</td>
+                        
+                        <td><a href="#" class="btn" onclick="view(${patient.patient_id})">View</a></td>
+                        <td><a href="#" class="btn" onclick="editPatient(${patient.patient_id})">Edit</a></td>
+                        <td><a href="#" class="btn" onclick="deletePatient(${patient.patient_id})")">Delete</a></td>
+                    `;
+                    patientTableBody.appendChild(row);
+                });
+            })
+            .catch(error => console.error('Error fetching patient data:', error));
+    });
+
+    //list appointments
+    document.addEventListener('DOMContentLoaded', function () {
+        const apiUrl = 'http://localhost:8083/api/appointments';
+
+        fetch(apiUrl)
+            .then(response => response.json())
+            .then(data => {
+                console.log('Success:', data);
+                const appointmentTableBody = document.getElementById('appointmentTableBody');
+        
+     
+                data.forEach(appointment => {
+                    const row = document.createElement('tr');
+
+                    row.innerHTML = `
+                        <td>${appointment.appointment_id}</td>
+                        <td>${appointment.patient_first_name} ${appointment.patient_last_name} </td>
+                        <td>${appointment.doctor_first_name} ${appointment.doctor_last_name} </td>
+                        <td>${appointment.appointment_date} </td>
+                        <td>${appointment.status}</td>
+                        <td><a href="#" class="btn">View</a></td>
+                    `;
+                    appointmentTableBody.appendChild(row);
+                });
+            })
+            .catch(error => console.error('Error fetching appointment data:', error));
+    });
+
+
+    //total number of patients
+    document.addEventListener('DOMContentLoaded', function () {
+        const apiUrl = 'http://localhost:8083/api/counts';
+
+        fetch(apiUrl)
+            .then(response => response.json())
+            .then(data => {
+                console.log('Success:', data);
+                const patientCount = document.getElementById('patientCount');
+
+                patientCount.innerHTML = data.patients;
+ ;
+            })
+            .catch(error => console.error('Error fetching count data:', error));
+    });
+
+
+
+    function view(patientId){
+    alert(`Viewing patient with ID ${patientId}`);
+    console.log('View function called');
+    }
+
+    function searchPatientById() {
+        const patientIdInput = document.getElementById('patientIdInput');
+        const patientId = patientIdInput.value.trim();
+
+    if (patientId !== '') {
+        const apiUrl = `http://localhost:8083/api/patients?patient_id=${patientId}`;
+
+        fetch(apiUrl)
+            .then(response => response.json())
+            .then(data => {
+                const patientTableBody = document.getElementById('patientTableBody');
+                patientTableBody.innerHTML = ''; // Clear existing table rows
+
+                if (data) {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${data.patient_id}</td>
+                        <td>${data.first_name} ${data.last_name}</td>
+                        <td>${data.dob}</td>
+                        <td>${data.gender}</td>
+                        <td><a href="#" class="btn">View</a></td>
+                    `;
+                    patientTableBody.appendChild(row);
+                } else {
+                    alert('Patient not found');
+                }
+            })
+            .catch(error => console.error('Error fetching patient data:', error));
+    } else {
+        alert('Please enter a Patient ID');
+    }
+ }
+
+ function deletePatient(patientId) {
+    if (confirm(`Are you sure you want to delete the patient with ID ${patientId}?`)) {
+        const apiUrl = `http://localhost:8083/api/patients?patient_id=${patientId}`;
+
+        fetch(apiUrl, {
+            method: 'DELETE',
+        })
+            .then(response => {
+                if (response.ok) {
+                    // Successful status (2xx), no need to parse JSON
+                    console.log('Patient deleted successfully');
+                    return Promise.resolve(); // No content to parse
+                } else {
+                    // Non-success status, try to parse JSON for error information
+                    return response.json();
+                }
+            })
+            .then(data => {
+                if (data) {
+                    console.error('Error deleting patient:', data);
+                }
+
+                // Refresh the patient table to reflect the changes
+                viewAllPatients();
+            })
+            .catch(error => console.error('Unexpected error deleting patient:', error));
+    }
+}
+
+    function viewAllPatients() {
+        const apiUrl = 'http://localhost:8083/api/patients';
+
+        fetch(apiUrl)
+            .then(response => response.json())
+            .then(data => {
+                const patientTableBody = document.getElementById('patientTableBody');
+                patientTableBody.innerHTML = ''; // Clear existing table rows
+
+                data.forEach(patient => {
+                    const row = document.createElement('tr');
+
+                    row.innerHTML = `
+                        <td>${patient.patient_id}</td>
+                        <td>${patient.first_name} ${patient.last_name}</td>
+                        <td>${patient.dob}</td>
+                        <td>${patient.gender}</td>
+                        <td><a href="#" class="btn">View</a></td>
+                    `;
+                    patientTableBody.appendChild(row);
+                });
+            })
+            .catch(error => console.error('Error fetching patient data:', error));
+    }
+</script>
+
+</html>

@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Admin Panel</title>
+</head>
+
+<body>
+    <div class="side-menu">
+        <div class="brand-name">
+            <h1>Coopa HMS</h1>
+        </div>
+        <ul>
+            <li><a href="index.html" class="active"><img src="images/dashboard.png" class="setting-icon"  alt="">&nbsp; <span>Dashboard</span> </a></li>
+            <li><a href="patients.html" ><img src="images/medical.png" class="setting-icon"  alt="">&nbsp;<span>Patients</span> </a></li>
+            <li> <a href="doctors.html" ><img  src="images/doctor.png"  class="setting-icon"  alt="">&nbsp;<span>Doctors</span> </a></li>
+            <li><a href="Appointments.html" ><img src="images/appointments2.png" class="setting-icon"  alt="">&nbsp;<span>Appointments</span> </a></li>
+            <li> <a href="hospitals.html" ><img src="images/hospital.png" class="setting-icon"  alt="">&nbsp;<span>Hospitals</span> </a></li>
+            <li> <a href="records.html" ><img src="images/record.png" class="setting-icon"  alt="">&nbsp;<span>Records</span> </a></li>
+            <li> <a href="help.html" ><img src="images/help.png" class="setting-icon"  alt="">&nbsp;<span>Help</span> </a></li>
+            <li><a href="login.html"> <img src="images/logout.png" class="setting-icon"  alt="">&nbsp;<span>Logout</span> </a></li>
+        </ul>
+    </div>
+    <div class="container">
+        <div class="header">
+            <div class="nav">
+                <div class="search">
+                    <input type="text" placeholder="Search.." id="patientIdInput">
+                    <button onclick="searchAppointmentById()" title="button" type="submit"><img src="images/search.png" alt=""></button>
+                </div>
+                <div class="add-appointment">
+                    <button onclick="openAddAppointmentForm()">Add New Appointment</button>
+                </div>
+                <div class="user">
+                    <img src="images/notifications.png" alt="">
+                    <div class="img-case">
+                        <img src="images/user.png" alt="">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="content">
+                <div class="cards"></div>
+
+            <div class="content-2">
+                <div class="recent-payments">
+                    <div class="title">
+                        <h2>Appointments</h2>
+                        <span id="appointmentCount"></span>
+                        <a href="#" class="btn" onclick="viewAllAppointments()">View All Appointments</a>
+                    </div>
+
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>AppointmentID</th>
+                                    <th>PatientID</th>
+                                    <th>DoctorID</th>
+                                    <th>AppointmentDate</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="appointmentTableBody"></tbody>
+                        </table>
+                    
+                        <!-- <div class="add-appointment">
+                            <button onclick="openAddAppointmentForm()">Add New Appointment</button>
+                        </div> -->
+                        <div class="add-appointment-form" id="addAppointmentForm" style="display: none;">
+                            <h2>Add New Appointment</h2>
+                            <form id="appointmentForm">
+                                <label for="patientId">Patient ID:</label>
+                                <input type="text" id="patientId" name="patientId" required><br>
+    
+                                <label for="doctorId">Doctor ID:</label>
+                                <input type="text" id="doctorId" name="doctorId" required><br>
+    
+                                <label for="appointmentDate">Appointment Date:</label>
+                                <input type="date" id="appointmentDate" name="appointmentDate" required><br>
+    
+                                <label for="status">Status:</label>
+                                <input type="text" id="status" name="status" required><br>
+    
+                                <input type="submit" value="Submit">
+                            </form>
+
+                        </div>
+
+                        <div>
+                            <div class="edit-appointment-form" id="editAppointmentForm" style="display: none;">
+                                <h2>Edit Appointment</h2>
+                                <form id="editAppointmentForm">
+                            
+                                    <label for="editAppointmentDate">Appointment Date:</label>
+                                    <input type="date" id="editAppointmentDate" name="editAppointmentDate" required><br>
+
+                                    <label for="editStatus">Status:</label>
+                                    <input type="text" id="editStatus" name="editStatus" required><br>
+                            
+                                    <!-- Add more fields as needed -->
+                            
+                                    <input type="submit" value="Save Changes">
+                                </form>
+                            </div>
+                        </div>
+                 </div>
+             </div>
+    </div>
+
+<script>
+
+        let currentEditingAppointmentId; // Variable to store the ID of the appointment being edited
+
+
+        document.getElementById('editAppointmentForm').addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            // Get the edited information from the form
+            const editedData = {
+                appointment_date: document.getElementById('editAppointmentDate').value,
+                status: document.getElementById('editStatus').value,
+                // Add more fields as needed
+            };
+
+            // Update the appointment using the API (replace 'YOUR_API_URL' with the correct URL)
+            const apiUrl = `http://localhost:8083/api/appointments?appointment_id=${currentEditingAppointmentId}`;
+
+            fetch(apiUrl, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(editedData),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Success:', data);
+                    hideEditAppointmentForm();
+                    // Refresh the appointments after editing
+                    viewAllAppointments();
+                })
+                .catch(error => console.error('Error editing appointment:', error));
+        });
+
+
+        function editAppointment(appointmentId) {
+            // Set the currentEditingAppointmentId for later use
+            currentEditingAppointmentId = appointmentId;
+
+            // Fetch the appointment data for the given ID (replace 'YOUR_API_URL' with the correct URL)
+            const apiUrl = `http://localhost:8083/api/appointments?appointment_id=${appointmentId}`;
+
+            fetch(apiUrl)
+                .then(response => response.json())
+                .then(data => {
+                    // Populate the edit form with the appointment data
+                    document.getElementById('editAppointmentDate').value = data.appointment_date;
+                    document.getElementById('editStatus').value = data.status;
+
+                    // Show the edit form
+                    openEditAppointmentForm();
+                })
+                .catch(error => console.error('Error fetching appointment data for editing:', error));
+        }
+
+        function deleteAppointment(appointmentId) {
+            if (confirm(`Are you sure you want to delete the appointment with ID ${appointmentId}?`)) {
+                const apiUrl = `http://localhost:8083/api/appointments?appointment_id=${appointmentId}`;
+
+                fetch(apiUrl, {
+                    method: 'DELETE',
+                })
+                    .then(response => {
+                        if (response.ok) {
+                            // Successful status (2xx), no need to parse JSON
+                            console.log('Appointment deleted successfully');
+                            return Promise.resolve(); // No content to parse
+                        } else {
+                            // Non-success status, try to parse JSON for error information
+                            return response.json();
+                        }
+                    })
+                    .then(data => {
+                        if (data) {
+                            console.error('Error deleting appointment:', data);
+                        }
+
+                        // Refresh the appointment table to reflect the changes
+                        viewAllAppointments();
+                    })
+                    .catch(error => console.error('Unexpected error deleting appointment:', error));
+            }
+        }
+
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const apiUrl = 'http://localhost:8083/api/counts';
+
+            fetch(apiUrl)
+                .then(response => response.json())
+                .then(data => {
+                    const appointmentCount = document.getElementById('appointmentCount');
+
+                    appointmentCount.innerHTML = data.appointments;
+                })
+                .catch(error => console.error('Error fetching count data:', error));
+        });
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const apiUrl = 'http://localhost:8083/api/appointments';
+
+            fetch(apiUrl)
+                .then(response => response.json())
+                .then(data => {
+                    const appointmentTableBody = document.getElementById('appointmentTableBody');
+
+                    data.forEach(appointment => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${appointment.appointment_id}</td>
+                            <td>${appointment.patient_id}</td>
+                            <td>${appointment.doctor_id}</td>
+                            <td>${appointment.appointment_date}</td>
+                            <td>${appointment.status}</td>
+                            <td><a href="#" class="btn" onclick="view(${appointment.appointment_id})">View</a></td>
+                            <td><a href="#" class="btn" onclick="editAppointment(${appointment.appointment_id})">Edit</a></td>
+                            <td><a href="#" class="btn" onclick="deleteAppointment(${appointment.appointment_id})")">Delete</a></td>
+                        `;
+                        appointmentTableBody.appendChild(row);
+                    });
+                })
+                .catch(error => console.error('Error fetching appointment data:', error));
+        });
+
+        document.getElementById('editAppointmentForm').addEventListener('submit', function (event) {
+        event.preventDefault();
+
+        // Get the edited information from the form
+        const editedData = {
+            appointment_date: document.getElementById('editAppointmentDate').value,
+            Status: document.getElementById('editStatus').value,
+
+            // Add more fields as needed
+        };
+
+        })
+
+
+        function view(appointmentId){
+            alert(`Viewing appointment with ID ${appointmentId}`);
+            console.log('View function called');
+        }
+        function searchAppointmentById() {
+            const patientIdInput = document.getElementById('patientIdInput');
+            const patientId = patientIdInput.value.trim();
+
+            if (patientId !== '') {
+                const apiUrl = `http://localhost:8083/api/appointments?patient_id=${patientId}`;
+
+                fetch(apiUrl)
+                    .then(response => response.json())
+                    .then(data => {
+                        const appointmentTableBody = document.getElementById('appointmentTableBody');
+                        appointmentTableBody.innerHTML = '';
+
+                        if (data.length > 0) {
+                            data.forEach(appointment => {
+                                const row = document.createElement('tr');
+                                row.innerHTML = `
+                                    <td>${appointment.appointment_id}</td>
+                                    <td>${appointment.patient_id}</td>
+                                    <td>${appointment.doctor_id}</td>
+                                    <td>${appointment.appointment_date}</td>
+                                    <td>${appointment.status}</td>
+                                    <td><a href="#" class="btn">View</a></td>
+                                `;
+                                appointmentTableBody.appendChild(row);
+                            });
+                        } else {
+                            alert('Appointment not found');
+                        }
+                    })
+                    .catch(error => console.error('Error fetching appointment data:', error));
+            } else {
+                alert('Please enter a Patient ID');
+            }
+        }
+
+        function openAddAppointmentForm() {
+        const addAppointmentForm = document.getElementById('addAppointmentForm');
+        addAppointmentForm.style.display = 'block';
+    }
+
+    function openEditAppointmentForm() {
+        const editAppointmentForm = document.getElementById('editAppointmentForm');
+        editAppointmentForm.style.display = 'block';
+    }
+
+    function hideEditAppointmentForm() {
+        const editAppointmentForm = document.getElementById('editAppointmentForm');
+        editAppointmentForm.style.display = 'none';
+    }
+
+    function hideAddAppointmentForm() {
+        const addAppointmentForm = document.getElementById('addAppointmentForm');
+        addAppointmentForm.style.display = 'none';
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const addButton = document.querySelector('.add-appointment button');
+        const addAppointmentForm = document.getElementById('addAppointmentForm');
+
+        addButton.addEventListener('click', function (event) {
+            event.preventDefault();
+            openAddAppointmentForm();
+        });
+
+        document.getElementById('appointmentForm').addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            const apiUrl = 'http://localhost:8083/api/appointments';
+
+            const formData = {
+                patient_id: document.getElementById('patientId').value,
+                doctor_id: document.getElementById('doctorId').value,
+                appointment_date: document.getElementById('appointmentDate').value,
+                status: document.getElementById('status').value,
+            };
+
+            fetch(apiUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Success:', data);
+                    hideAddAppointmentForm();
+                    // You may want to reload or update the appointment table after adding a new appointment
+                    viewAllAppointments();
+                })
+                .catch(error => console.error('Error adding appointment:', error));
+        });
+    });
+
+    function viewAllAppointments() {
+        const apiUrl = 'http://localhost:8083/api/appointments';
+
+        fetch(apiUrl)
+            .then(response => response.json())
+            .then(data => {
+                const appointmentTableBody = document.getElementById('appointmentTableBody');
+                appointmentTableBody.innerHTML = '';
+
+                data.forEach(appointment => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${appointment.appointment_id}</td>
+                        <td>${appointment.patient_id}</td>
+                        <td>${appointment.doctor_id}</td>
+                        <td>${appointment.appointment_date}</td>
+                        <td>${appointment.status}</td>
+                    `;
+                    appointmentTableBody.appendChild(row);
+                });
+
+                hideAddAppointmentForm(); // Hide the form after loading appointments
+            })
+            .catch(error => console.error('Error fetching appointment data:', error));
+    }
+</script>
+</body>
+
+</html>
+
+
+<!-- ... (Your existing HTML code) ... -->
+
+<!-- <div class="edit-appointment-form" id="editAppointmentForm" style="display: none;">
+    <h2>Edit Appointment</h2>
+    <form id="editAppointmentForm">
+        <label for="editAppointmentDate">Appointment Date:</label>
+        <input type="date" id="editAppointmentDate" name="editAppointmentDate" required><br>
+
+        <label for="editStatus">Status:</label>
+        <input type="text" id="editStatus" name="editStatus" required><br>
+
+        <!-- Add more fields as needed -->
+
+        <!-- <input type="submit" value="Save Changes">
+    </form>
+</div> --> -->
+
+<!-- <script>
+    // ... (Your existing JavaScript code) ...
+
+    function hideEditAppointmentForm() {
+        const editAppointmentForm = document.getElementById('editAppointmentForm');
+        editAppointmentForm.style.display = 'none';
+    }
+
+    // Event listener for submitting the edit form
+    document.getElementById('editAppointmentForm').addEventListener('submit', function (event) {
+        event.preventDefault();
+
+        // Get the edited information from the form
+        const editedData = {
+            appointment_date: document.getElementById('editAppointmentDate').value,
+            status: document.getElementById('editStatus').value,
+            // Add more fields as needed
+        };
+
+        // Update the appointment using the API
+        const apiUrl = `http://localhost:8083/api/appointments?appointment_id=${currentEditingAppointmentId}`;
+
+        fetch(apiUrl, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(editedData),
+        })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Success:', data);
+                hideEditAppointmentForm();
+                // Refresh the appointments after editing
+                viewAllAppointments();
+            })
+            .catch(error => console.error('Error editing appointment:', error));
+    });
+
+    // Function to open the edit form
+    function openEditAppointmentForm() {
+        const editAppointmentForm = document.getElementById('editAppointmentForm');
+        editAppointmentForm.style.display = 'block';
+    }
+
+    // ... (Your existing JavaScript code) ...
+</script>
+
+... (Your existing HTML code) ... -->

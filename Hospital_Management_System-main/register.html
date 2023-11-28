@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coopa HMS Register</title>
+    <link rel="stylesheet" href="login.css" />
+</head>
+  <body>
+    <div class="center">
+      <h1>Coopa HMS Register</h1>
+      <form id="loginForm" method="post" action="http://localhost:8083/api/auth/register">
+        <div class="txt_field">
+          <input type="text"  name="username"   />
+          <span></span>
+          <label>Username</label>
+        </div>
+        <div class="txt_field">
+          
+          <input type="text"  name="password" required />
+          <span></span>
+          <label>Password</label>
+        </div>
+       
+        <input type="submit" value="Register" />
+        <div class="signup_link">Not an admin? <a href="login.html">Login</a></div>
+      </form>
+    </div>
+  </body>
+
+
+  <script>
+
+const inputs = document.querySelectorAll(".txt_field input");
+    function addcl(){
+      let parent = this.parentNode.parentNode;
+      parent.classList.add("focus");
+    }
+    function remcl(){
+      let parent = this.parentNode.parentNode;
+      if(this.value == ""){
+        parent.classList.remove("focus");
+      }
+    }
+    inputs.forEach(input => {
+      input.addEventListener("focus", addcl);
+      input.addEventListener("blur", remcl);
+    });
+  document.getElementById('loginForm').addEventListener('submit', function (event) {
+      event.preventDefault();
+  
+      const formData = new FormData(event.target);
+      console.log(Object.fromEntries(formData))
+      console.log(JSON.stringify(Object.fromEntries(formData)))
+      console.log(formData)
+  
+      fetch('http://localhost:8083/api/auth/register', {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(Object.fromEntries(formData)),
+      })
+      .then(response => {
+        console.log(response);
+          if (response.ok) {
+              // Redirect to index.html upon successful login
+              window.location.href = '/login.html';  // Update this URL accordingly
+          } else {
+              return response.json();
+          }
+      })
+      .then(data => {
+          console.error('Login failed:', data.message);  // Handle failed login
+      })
+      .catch(error => {
+          console.error('Error during login:', error);
+      });
+  });
+  </script>
+  
+</html>
